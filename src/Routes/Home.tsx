@@ -26,16 +26,18 @@ const Banner = styled.div<{ bgPhoto: string }>`
   background-size: cover;
 `;
 const Title = styled.h2`
-  font-size: 68px;
+  font-size: 46px;
   margin-bottom: 20px;
+  font-weight: 500;
 `;
 const OverView = styled.p`
-  font-size: 36px;
-  width: 50%;
+  font-size: 22px;
+  width: 45%;
+  opacity: 0.8;
 `;
 const Slider = styled.div`
   position: relative;
-  top: -100px;
+  top: -200px;
 `;
 const Row = styled(motion.div)`
   display: grid;
@@ -50,9 +52,15 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-size: cover;
   background-position: center center;
   height: 200px;
-  color: red;
   font-size: 66px;
+  :first-child {
+    transform-origin: center left;
+  }
+  :last-child {
+    transform-origin: center right;
+  }
 `;
+
 const rowVariants = {
   hidden: {
     x: window.outerWidth + 5,
@@ -83,6 +91,22 @@ function Home() {
   const toggleLeaving = () => {
     setLeaving((prev) => !prev);
   };
+
+  const BoxVariants = {
+    narmal: {
+      scale: 1,
+    },
+    hover: {
+      scale: 1.3,
+      y: -50,
+      transition: {
+        delay: 0.5,
+        duration: 0.3,
+        type: 'tween',
+      },
+    },
+  };
+
   return (
     <Wrapper>
       {isLoading ? (
@@ -107,7 +131,14 @@ function Home() {
                   .slice(1)
                   .slice(offset * index, offset * index + offset)
                   .map((movie) => (
-                    <Box key={movie.id} bgPhoto={makeImagePath(movie.backdrop_path, 'w500')} />
+                    <Box
+                      key={movie.id}
+                      variants={BoxVariants}
+                      whileHover='hover'
+                      initial='normal'
+                      transition={{ type: 'tween' }}
+                      bgPhoto={makeImagePath(movie.backdrop_path, 'w500')}
+                    />
                   ))}
               </Row>
             </AnimatePresence>
