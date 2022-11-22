@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { makeImagePath } from './../utills';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate, useMatch, PathMatch } from 'react-router-dom';
 
 const Wrapper = styled.div`
   background-color: black;
@@ -16,13 +17,13 @@ const Loader = styled.div`
   justify-content: center;
   align-items: center;
 `;
-const Banner = styled.div<{ bgPhoto: string }>`
+const Banner = styled.div<{ bgphoto: string }>`
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 60px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)), url(${(props) => props.bgPhoto});
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)), url(${(props) => props.bgphoto});
   background-size: cover;
 `;
 const Title = styled.h2`
@@ -46,13 +47,13 @@ const Row = styled(motion.div)`
   position: absolute;
   width: 100%;
 `;
-const Box = styled(motion.div)<{ bgPhoto: string }>`
+const Box = styled(motion.div)<{ bgphoto: string }>`
   background-color: white;
-  background-image: url(${(props) => props.bgPhoto});
+  background-image: url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
   height: 200px;
-  font-size: 66px;
+  cursor: pointer;
   :first-child {
     transform-origin: center left;
   }
@@ -61,6 +62,32 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   }
 `;
 
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  h4 {
+    text-align: center;
+    font-size: 18px;
+  }
+`;
+const BoxVariants = {
+  narmal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -50,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: 'tween',
+    },
+  },
+};
 const rowVariants = {
   hidden: {
     x: window.outerWidth + 5,
@@ -73,9 +100,21 @@ const rowVariants = {
   },
 };
 
+const infoVariants = {
+  hover: {
+    opacity: 1,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: 'tween',
+    },
+  },
+};
 const offset = 6; // 한번에 보여주고싶은 수
 
 function Home() {
+  const navigate = useNavigate();
+  const bigMovieMatch: PathMatch<string> | null = useMatch('/movies/:id');
   const { data, isLoading } = useQuery<IGetMovieResult>(['movies', 'nowPlaying'], getMovies);
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
@@ -92,28 +131,16 @@ function Home() {
     setLeaving((prev) => !prev);
   };
 
-  const BoxVariants = {
-    narmal: {
-      scale: 1,
-    },
-    hover: {
-      scale: 1.3,
-      y: -50,
-      transition: {
-        delay: 0.5,
-        duration: 0.3,
-        type: 'tween',
-      },
-    },
+  const onBoxClickd = (movieId: number) => {
+    navigate(`/movies/${movieId}`);
   };
-
   return (
     <Wrapper>
       {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner onClick={increaseIndex} bgPhoto={makeImagePath(data?.results[0].backdrop_path || '')}>
+          <Banner onClick={increaseIndex} bgphoto={makeImagePath(data?.results[0].backdrop_path || '')}>
             <Title>{data?.results[0].title}</Title>
             <OverView>{data?.results[0].overview}</OverView>
           </Banner>
@@ -132,17 +159,40 @@ function Home() {
                   .slice(offset * index, offset * index + offset)
                   .map((movie) => (
                     <Box
+                      layoutId={movie.id + ''}
                       key={movie.id}
                       variants={BoxVariants}
                       whileHover='hover'
                       initial='normal'
+                      onClick={() => onBoxClickd(movie.id)}
                       transition={{ type: 'tween' }}
-                      bgPhoto={makeImagePath(movie.backdrop_path, 'w500')}
-                    />
+                      bgphoto={makeImagePath(movie.backdrop_path, 'w500')}
+                    >
+                      <Info variants={infoVariants}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
           </Slider>
+          <AnimatePresence>
+            {bigMovieMatch && (
+              <motion.div
+                layoutId={bigMovieMatch.params.movieId}
+                style={{
+                  position: 'absolute',
+                  width: '40vw',
+                  height: '80vh',
+                  backgroundColor: 'red',
+                  top: 50,
+                  left: 0,
+                  right: 0,
+                  margin: '0 auto',
+                }}
+              />
+            )}
+          </AnimatePresence>
         </>
       )}
     </Wrapper>
