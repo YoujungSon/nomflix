@@ -11,7 +11,6 @@ const Nav = styled(motion.nav)`
   position: fixed;
   width: 100%;
   top: 0;
-  font-size: 14px;
   padding: 20px 60px;
   color: white;
 `;
@@ -160,10 +159,10 @@ function Header() {
         </Logo>
         <Items>
           <Item>
-            <Link to='/'>Home {homeMatch && <Circle layoutId='circle' />}</Link>
+            <Link to='/'>홈 {homeMatch && <Circle layoutId='circle' />}</Link>
           </Item>
           <Item>
-            <Link to='/tv'>Tv Shows {tvMatch && <Circle layoutId='circle' />}</Link>
+            <Link to='/tv'>TV프로그램 {tvMatch && <Circle layoutId='circle' />}</Link>
           </Item>
         </Items>
       </Col>
@@ -171,7 +170,7 @@ function Header() {
         <Search onSubmit={handleSubmit(onValid)}>
           <motion.svg
             onClick={toggleSearch}
-            animate={{ x: searchOpen ? -210 : 0 }}
+            animate={{ x: searchOpen ? -220 : 0 }}
             transition={{ type: 'linear' }}
             fill='currentColor'
             viewBox='0 0 20 20'
